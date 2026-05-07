@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>合浦珠还 - 失物招领平台</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">合浦珠还</h1>
+            <p class="slogan">假如我们都有掉东西的时候</p>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="main-content">
+        <!-- 首页欢迎 -->
+        <section class="welcome-section" id="welcome">
+            <div class="card">
+                <h2>欢迎来到合浦珠还</h2>
+                <p>这是一个专为桂林旅游学院师生打造的失物招领平台。</p>
+                <p>在这里，你可以：</p>
+                <ul>
+                    <li><i class="fas fa-search"></i> 发布丢失物品信息</li>
+                    <li><i class="fas fa-hand-holding-heart"></i> 发布拾取物品信息</li>
+                    <li><i class="fas fa-magic"></i> 智能匹配失物与拾物</li>
+                    <li><i class="fas fa-comments"></i> 与对方沟通确认</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 快捷操作 -->
+        <section class="quick-actions">
+            <div class="action-grid">
+                <button class="action-btn lost-btn" onclick="showPage('publish-lost')">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>我丢东西了</span>
+                </button>
+                <button class="action-btn found-btn" onclick="showPage('publish-found')">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <span>我捡到东西了</span>
+                </button>
+                <button class="action-btn search-btn" onclick="showPage('search')">
+                    <i class="fas fa-search"></i>
+                    <span>搜索物品</span>
+                </button>
+                <button class="action-btn match-btn" onclick="showPage('matches')">
+                    <i class="fas fa-link"></i>
+                    <span>匹配记录</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 最新失物 -->
+        <section class="latest-section">
+            <h3><i class="fas fa-clock"></i> 最新失物</h3>
+            <div class="items-list" id="lostList">
+                <!-- 动态加载 -->
+            </div>
+            <button class="load-more" onclick="loadMoreLost()">查看更多</button>
+        </section>
+
+        <!-- 最新拾物 -->
+        <section class="latest-section">
+            <h3><i class="fas fa-star"></i> 最新拾物</h3>
+            <div class="items-list" id="foundList">
+                <!-- 动态加载 -->
+            </div>
+            <button class="load-more" onclick="loadMoreFound()">查看更多</button>
+        </section>
+    </main>
+
+    <!-- 发布失物页面 -->
+    <section class="page" id="publish-lost" style="display:none">
+        <div class="page-header">
+            <button class="back-btn" onclick="showPage('welcome')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>发布失物信息</h2>
+        </div>
+        <form class="publish-form" id="lostForm">
+            <div class="form-group">
+                <label>物品名称 *</label>
+                <input type="text" name="title" placeholder="例：黑色钱包" required>
+            </div>
+            <div class="form-group">
+                <label>物品类别 *</label>
+                <select name="category" required>
+                    <option value="">请选择类别</option>
+                    <option value="证件">证件</option>
+                    <option value="电子产品">电子产品</option>
+                    <option value="钱包">钱包</option>
+                    <option value="钥匙">钥匙</option>
+                    <option value="书籍">书籍</option>
+                    <option value="衣物">衣物</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>丢失地点 *</label>
+                <input type="text" name="location" placeholder="例：图书馆三楼" required>
+            </div>
+            <div class="form-group">
+                <label>丢失时间</label>
+                <input type="datetime-local" name="lost_time">
+            </div>
+            <div class="form-group">
+                <label>物品描述 *</label>
+                <textarea name="description" rows="4" placeholder="请详细描述物品特征..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label>联系方式</label>
+                <input type="text" name="contact" placeholder="手机号或微信号">
+            </div>
+            <div class="form-group">
+                <label>上传图片</label>
+                <div class="upload-area" id="lostUpload">
+                    <i class="fas fa-camera"></i>
+                    <span>点击或拖拽上传图片</span>
+                    <input type="file" name="image" accept="image/*" style="display:none">
+                </div>
+                <div class="image-preview" id="lostPreview"></div>
+            </div>
+            <button type="submit" class="submit-btn">发布失物</button>
+        </form>
+    </section>
+
+    <!-- 发布拾物页面 -->
+    <section class="page" id="publish-found" style="display:none">
+        <div class="page-header">
+            <button class="back-btn" onclick="showPage('welcome')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>发布拾物信息</h2>
+        </div>
+        <form class="publish-form" id="foundForm">
+            <div class="form-group">
+                <label>物品名称 *</label>
+                <input type="text" name="title" placeholder="例：黑色钱包" required>
+            </div>
+            <div class="form-group">
+                <label>物品类别 *</label>
+                <select name="category" required>
+                    <option value="">请选择类别</option>
+                    <option value="证件">证件</option>
+                    <option value="电子产品">电子产品</option>
+                    <option value="钱包">钱包</option>
+                    <option value="钥匙">钥匙</option>
+                    <option value="书籍">书籍</option>
+                    <option value="衣物">衣物</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>拾取地点 *</label>
+                <input type="text" name="location" placeholder="例：食堂二楼" required>
+            </div>
+            <div class="form-group">
+                <label>拾取时间</label>
+                <input type="datetime-local" name="found_time">
+            </div>
+            <div class="form-group">
+                <label>物品描述 *</label>
+                <textarea name="description" rows="4" placeholder="请详细描述物品特征..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label>联系方式</label>
+                <input type="text" name="contact" placeholder="手机号或微信号">
+            </div>
+            <div class="form-group">
+                <label>上传图片</label>
+                <div class="upload-area" id="foundUpload">
+                    <i class="fas fa-camera"></i>
+                    <span>点击或拖拽上传图片</span>
+                    <input type="file" name="image" accept="image/*" style="display:none">
+                </div>
+                <div class="image-preview" id="foundPreview"></div>
+            </div>
+            <button type="submit" class="submit-btn">发布拾物</button>
+        </form>
+    </section>
+
+    <!-- 搜索页面 -->
+    <section class="page" id="search" style="display:none">
+        <div class="page-header">
+            <button class="back-btn" onclick="showPage('welcome')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>搜索物品</h2>
+        </div>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="输入关键词搜索...">
+            <button onclick="doSearch()">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="search-results" id="searchResults">
+            <!-- 动态加载 -->
+        </div>
+    </section>
+
+    <!-- 匹配记录页面 -->
+    <section class="page" id="matches" style="display:none">
+        <div class="page-header">
+            <button class="back-btn" onclick="showPage('welcome')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>匹配记录</h2>
+        </div>
+        <div class="matches-list" id="matchesList">
+            <!-- 动态加载 -->
+        </div>
+    </section>
+
+    <!-- 详情页面 -->
+    <section class="page" id="detail" style="display:none">
+        <div class="page-header">
+            <button class="back-btn" onclick="showPage('welcome')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>物品详情</h2>
+        </div>
+        <div class="detail-content" id="detailContent">
+            <!-- 动态加载 -->
+        </div>
+    </section>
+
+    <!-- 用户中心页面 -->
+    <section class="page" id="user-center" style="display:none">
+        <div class="page-header">
+            <button class="back-btn" onclick="showPage('welcome')">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2>个人中心</h2>
+        </div>
+        <div class="user-info" id="userInfo">
+            <!-- 动态加载 -->
+        </div>
+        <div class="user-items" id="userItems">
+            <!-- 动态加载 -->
+        </div>
+    </section>
+
+    <!-- 登录/注册弹窗 -->
+    <div class="modal" id="authModal" style="display:none">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="authTitle">登录</h3>
+                <button class="close-btn" onclick="closeModal('authModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" name="password" required>
+                </div>
+                <button type="submit" class="submit-btn">登录</button>
+                <p class="switch-auth">还没有账号？<a href="#" onclick="showRegister()">立即注册</a></p>
+            </form>
+            <form id="registerForm" class="auth-form" style="display:none">
+                <div class="form-group">
+                    <label>用户名 *</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label>密码 *</label>
+                    <input type="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label>手机号 *</label>
+                    <input type="tel" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label>学号</label>
+                    <input type="text" name="student_id">
+                </div>
+                <button type="submit" class="submit-btn">注册</button>
+                <p class="switch-auth">已有账号？<a href="#" onclick="showLogin()">立即登录</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="showPage('welcome')">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+        </button>
+        <button class="nav-item" onclick="showPage('publish-lost')">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>失物</span>
+        </button>
+        <button class="nav-item" onclick="showPage('publish-found')">
+            <i class="fas fa-hand-holding-heart"></i>
+            <span>拾物</span>
+        </button>
+        <button class="nav-item" onclick="showPage('search')">
+            <i class="fas fa-search"></i>
+            <span>搜索</span>
+        </button>
+        <button class="nav-item" onclick="showPage('user-center')">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+        </button>
+    </nav>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -570,8 +570,14 @@ async function confirmMatch(matchId) {
 }
 
 async function rejectMatch(matchId) {
-    // 简单处理，直接刷新
-    loadMatches();
+    const result = await apiRequest(`/api/match/${matchId}/reject`, {
+        method: 'POST'
+    });
+
+    if (result && result.code === 200) {
+        showToast('已忽略该匹配');
+        loadMatches();
+    }
 }
 
 // ============ 用户中心 ============

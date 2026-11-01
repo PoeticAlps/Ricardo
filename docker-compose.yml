@@ -1,0 +1,23 @@
+# 合浦珠还 - 一条命令部署: docker compose up -d --build
+# SQLite 数据库与上传图片存放在具名数据卷 hepu-data（容器内 /data），
+# docker compose down / 重建容器均不丢数据；彻底清空用: docker compose down -v
+services:
+  hepu:
+    build: .
+    image: hepu-lostandfound:latest
+    container_name: hepu
+    ports:
+      - "8000:8000"
+    environment:
+      # main.py / seed_demo.py 均读取这两个变量，把运行时数据指向挂载卷
+      HEPU_DB_PATH: /data/hepu.db
+      HEPU_UPLOAD_DIR: /data/uploads
+    volumes:
+      - hepu-data:/data
+    restart: unless-stopped
+    # 启动前先灌一次演示种子数据（幂等：已有演示数据自动跳过），再拉起服务
+    command: >
+      sh -c "python backend/seed_demo.py; exec uvicorn backend.main:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  hepu-data:

@@ -25,6 +25,48 @@
 
 **http://127.0.0.1:8000**
 
+## 部署
+
+### 方式一：Docker（推荐，一条命令部署到任何机器）
+
+机器上只需有 Docker（含 Compose 插件），无需 Python 环境：
+
+```bash
+docker compose up -d --build
+```
+
+启动后访问 **http://localhost:8000**。容器每次启动都会先执行一次演示种子脚本
+（`backend/seed_demo.py`，幂等：已灌过数据会自动跳过），所以首次打开就能看到
+3 个演示账号和 10 条校园失物/拾物数据。
+
+- **数据持久化**：SQLite 数据库与上传图片存放在具名数据卷 `hepu-data`（容器内 `/data`），
+  `docker compose down`、重建容器都不会丢数据；彻底清空用 `docker compose down -v`
+- **重新灌演示数据**：`docker compose exec hepu python backend/seed_demo.py --reset`
+- **查看日志**：`docker compose logs -f`（种子脚本的账号信息也在这里）
+- 不用 Compose 时也可：`docker build -t hepu . && docker run -p 8000:8000 hepu`
+  （此方式数据仅存于容器内，未挂卷）
+
+### 方式二：本地 venv
+
+```bash
+./backend/run.sh               # 自动建 venv、装依赖并启动（监听 127.0.0.1:8000）
+python3 backend/seed_demo.py   # （可选）另开一个终端灌入演示数据，随时可跑，幂等
+```
+
+### 演示账号
+
+由 `backend/seed_demo.py` 创建，密码统一为 `demo12345`：
+
+| 用户名 | 密码 | 说明 |
+| --- | --- | --- |
+| demo_alice | demo12345 | 演示用户一（发布了失物与拾物若干） |
+| demo_bob | demo12345 | 演示用户二 |
+| demo_carol | demo12345 | 演示用户三 |
+
+种子数据共 10 条（失物 5 / 拾物 5），其中校园卡、蓝牙耳机、宿舍钥匙三对为
+"同类别 + 相似描述 + 同地点"，会走真实匹配算法自动生成匹配记录（校园卡一对
+已确认为"已解决"），其余为待匹配孤品；每条数据附一张纯色占位图。
+
 ## 默认演示路径
 
 1. 打开首页 → 注册两个账号（如 alice / bob，密码至少 6 位）
@@ -50,10 +92,14 @@
 ├── static/
 │   ├── css/style.css       # 样式
 │   └── js/app.js           # 前端逻辑
+├── Dockerfile              # Docker 镜像（python:3.11-slim + uvicorn）
+├── docker-compose.yml      # 一条命令部署，数据卷 hepu-data 持久化
+├── .dockerignore           # 排除 venv/ db/ uploads/ 等不入镜像
 ├── backend/
 │   ├── main.py             # FastAPI 应用（API + 静态托管 + 建表）
 │   ├── requirements.txt    # fastapi / uvicorn / python-multipart
-│   ├── run.sh              # 一键启动脚本
+│   ├── run.sh              # 本地一键启动脚本
+│   ├── seed_demo.py        # 演示种子数据脚本（幂等，--reset 重灌）
 │   ├── .gitignore          # 排除 venv/ db/ uploads/ 等运行时产物
 │   ├── hepu.db             # （运行时生成）SQLite 数据库
 │   └── uploads/            # （运行时生成）上传图片

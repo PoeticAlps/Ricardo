@@ -1,0 +1,19 @@
+# Docker 构建上下文排除项：运行时产物与开发文件不进镜像
+.git
+.gitignore
+.DS_Store
+**/.DS_Store
+**/__pycache__/
+**/*.pyc
+
+# 虚拟环境与本地运行时数据（容器内重建）
+backend/venv/
+backend/*.db
+backend/uploads/
+backend/.gitignore
+
+# 编排与文档无需进镜像
+Dockerfile
+docker-compose.yml
+.dockerignore
+*.md

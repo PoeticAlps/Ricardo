@@ -14,9 +14,10 @@ from fastapi.staticfiles import StaticFiles
 
 BASE_DIR = Path(__file__).resolve().parent   # backend/
 ROOT_DIR = BASE_DIR.parent                   # 仓库根（前端所在目录）
-DB_PATH = BASE_DIR / "hepu.db"
-UPLOAD_DIR = BASE_DIR / "uploads"
-UPLOAD_DIR.mkdir(exist_ok=True)
+# 数据库/上传目录可用环境变量覆盖（Docker 数据卷持久化用），默认行为不变
+DB_PATH = Path(os.environ.get("HEPU_DB_PATH") or BASE_DIR / "hepu.db")
+UPLOAD_DIR = Path(os.environ.get("HEPU_UPLOAD_DIR") or BASE_DIR / "uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 IMG_EXT = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp"}; MAX_IMG = 5 * 1024 * 1024  # 5MB
 
